@@ -1,0 +1,25 @@
+{
+  "rest-client.environmentVariables": {
+    "$shared": {
+      "baseUrl": "http://localhost:3001",
+      "apiVersion": "v1"
+    },
+    "development": {
+      "baseUrl": "http://localhost:3001",
+      "apiVersion": "v1"
+    },
+    "production": {
+      "baseUrl": "https://your-production-url.com",
+      "apiVersion": "v1"
+    }
+  },
+  "rest-client.defaultHeaders": {
+    "User-Agent": "SafeChain-Guardian-API-Test",
+    "Accept": "application/json"
+  },
+  "rest-client.timeoutinmilliseconds": 30000,
+  "rest-client.followredirect": true,
+  "rest-client.previewOption": "body",
+  "rest-client.previewResponseInUntitledDocument": false,
+  "rest-client.previewColumn": "two"
+}

@@ -56,30 +56,33 @@ router.post(
 );
 
 /**
- * GET /api/v1/scan/history/:address
- * Get scan history untuk address
+ * GET /api/v1/scan/history
+ * Get scan history (semua atau filter by address via query)
+ * MUST be before /:scanId to avoid route conflict
  */
 router.get(
-  '/history/:address',
+  '/history',
   asyncHandler(scanController.getScanHistory)
-);
-
-/**
- * GET /api/v1/scan/:scanId
- * Get scan by ID
- */
-router.get(
-  '/:scanId',
-  asyncHandler(scanController.getScanById)
 );
 
 /**
  * GET /api/v1/scan/stats
  * Get system statistics
+ * MUST be before /:scanId to avoid route conflict
  */
 router.get(
   '/stats',
   asyncHandler(scanController.getStats)
+);
+
+/**
+ * GET /api/v1/scan/:scanId
+ * Get scan by ID
+ * MUST be last to avoid catching /history and /stats
+ */
+router.get(
+  '/:scanId',
+  asyncHandler(scanController.getScanById)
 );
 
 export default router;

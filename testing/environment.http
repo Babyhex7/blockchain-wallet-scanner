@@ -1,0 +1,31 @@
+###
+# 🌍 Environment Variables untuk REST Client Testing
+# File ini mendefinisikan variables yang digunakan di semua test files
+###
+
+### Development Environment
+@baseUrl = http://localhost:3001
+@apiVersion = v1
+@apiPrefix = /api/{{apiVersion}}
+
+### Full API URL
+@apiUrl = {{baseUrl}}{{apiPrefix}}
+
+### Common Headers
+@contentType = application/json
+
+### Test Delay (untuk rate limiting test)
+@testDelay = 1000
+
+###
+# 📝 Catatan:
+# - Semua file .http lain akan menggunakan variables ini
+# - Format: @variableName = value
+# - Gunakan {{variableName}} untuk reference variable
+###
+
+### Quick Test - Health Check
+# @name healthCheck
+GET {{apiUrl}}/health HTTP/1.1
+
+###

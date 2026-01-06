@@ -19,9 +19,15 @@ const orchestrator = new ScanOrchestrator();
 export async function scanAddress(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { address, chainId } = req.body as ScanRequest;
-    const scanType = req.params.type as ScanType | undefined;
     
-    logger.info(`📨 Received scan request: ${address} on chain ${chainId}`);
+    // Detect scan type dari path
+    let scanType: ScanType | undefined;
+    if (req.path.includes('/contract')) scanType = 'contract';
+    else if (req.path.includes('/token')) scanType = 'token';
+    else if (req.path.includes('/wallet')) scanType = 'wallet';
+    // else undefined = auto-detect
+    
+    logger.info(`📨 Received scan request: ${address} on chain ${chainId}, type: ${scanType || 'auto'}`);
     
     // Execute scan (cast chainId untuk TypeScript)
     const result = await orchestrator.scan(address, chainId as ChainId, scanType);
@@ -48,30 +54,50 @@ export async function scanAddress(req: Request, res: Response, next: NextFunctio
 }
 
 /**
- * Get scan history untuk address
+ * Get scan history (all atau filter by query params)
  */
 export async function getScanHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const { address } = req.params;
+    const { address, type } = req.query;
     const chainId = req.query.chainId ? parseInt(req.query.chainId as string) : undefined;
+    const page = req.query.page ? parseInt(req.query.page as string) : 1;
+    const limit = req.query.limit ? Math.min(parseInt(req.query.limit as string), 100) : 10;
     
-    const query: any = {
-      address: address.toLowerCase()
-    };
+    const query: any = {};
+    
+    if (address) {
+      query.address = (address as string).toLowerCase();
+    }
     
     if (chainId) {
       query.chainId = chainId;
     }
     
-    const history = await ScanResultModel.find(query)
-      .sort({ scannedAt: -1 })
-      .limit(10)
-      .select('-__v')
-      .lean();
+    if (type) {
+      query.type = type;
+    }
+    
+    const skip = (page - 1) * limit;
+    
+    const [history, total] = await Promise.all([
+      ScanResultModel.find(query)
+        .sort({ scannedAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .select('-__v')
+        .lean(),
+      ScanResultModel.countDocuments(query)
+    ]);
     
     res.status(200).json({
       success: true,
-      data: history
+      data: history,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
     });
     
   } catch (error) {

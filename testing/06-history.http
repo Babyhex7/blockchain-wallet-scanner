@@ -1,0 +1,85 @@
+###
+# 📊 History & Statistics Tests
+# Endpoints: GET /api/v1/scan/history, GET /api/v1/scan/stats
+# Purpose: Test scan history dan statistics retrieval
+###
+
+### Load environment variables
+@baseUrl = http://localhost:3001
+@apiVersion = v1
+@apiUrl = {{baseUrl}}/api/{{apiVersion}}
+
+###
+# Test 1: Get Recent Scan History (Default 10 results)
+# Expected: 200 OK dengan array of scan results
+# Sorted by: createdAt DESC (terbaru dulu)
+###
+# @name getRecentHistory
+GET {{apiUrl}}/scan/history HTTP/1.1
+
+###
+# Test 2: Get History dengan Pagination (Page 1, 5 items)
+# Expected: 5 results per page
+###
+# @name getHistoryPaginated
+GET {{apiUrl}}/scan/history?page=1&limit=5 HTTP/1.1
+
+###
+# Test 3: Get History - Page 2
+# Expected: Next 10 results
+###
+# @name getHistoryPage2
+GET {{apiUrl}}/scan/history?page=2&limit=10 HTTP/1.1
+
+###
+# Test 4: Get History dengan Large Limit (20 items)
+# Expected: Maximum 20 results
+###
+# @name getHistoryLargeLimit
+GET {{apiUrl}}/scan/history?limit=20 HTTP/1.1
+
+###
+# Test 5: Get History - Filter by Address
+# Expected: Only scans for specific address
+# Note: Ganti dengan address yang sudah pernah di-scan
+###
+# @name getHistoryByAddress
+GET {{apiUrl}}/scan/history?address=0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984 HTTP/1.1
+
+###
+# Test 6: Get History - Filter by Type (contract)
+# Expected: Only contract scan results
+###
+# @name getHistoryByType
+GET {{apiUrl}}/scan/history?type=contract HTTP/1.1
+
+###
+# Test 7: Get Scan Statistics
+# Expected: 200 OK dengan stats object
+# Stats: totalScans, scansByType, averageRiskScore, etc.
+###
+# @name getStats
+GET {{apiUrl}}/scan/stats HTTP/1.1
+
+###
+# Test 8: Get History dengan Invalid Page (negative)
+# Expected: 400 Bad Request atau default to page 1
+###
+# @name getHistoryInvalidPage
+GET {{apiUrl}}/scan/history?page=-1 HTTP/1.1
+
+###
+# Test 9: Get History dengan Invalid Limit (0)
+# Expected: 400 Bad Request atau default limit
+###
+# @name getHistoryInvalidLimit
+GET {{apiUrl}}/scan/history?limit=0 HTTP/1.1
+
+###
+# Test 10: Get History dengan Limit > Maximum (100)
+# Expected: Capped at maximum allowed limit
+###
+# @name getHistoryExcessiveLimit
+GET {{apiUrl}}/scan/history?limit=1000 HTTP/1.1
+
+###
