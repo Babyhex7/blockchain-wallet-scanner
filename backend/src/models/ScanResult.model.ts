@@ -169,7 +169,7 @@ const ScanResultSchema = new Schema<IScanResult>({
   expiresAt: {
     type: Date,
     required: true,
-    index: true
+    default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // Default: 30 days from now
   }
 }, {
   timestamps: true,
@@ -179,17 +179,8 @@ const ScanResultSchema = new Schema<IScanResult>({
 // Compound index untuk query optimization
 ScanResultSchema.index({ address: 1, chainId: 1, type: 1 });
 
-// TTL index untuk auto-delete setelah 30 hari
+// TTL index untuk auto-delete setelah expires (30 days default)
 ScanResultSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
-
-// Pre-save middleware untuk set expiresAt
-ScanResultSchema.pre('save', function(next) {
-  if (!this.expiresAt) {
-    // Expire after 30 days
-    this.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-  }
-  next();
-});
 
 /**
  * Export model
